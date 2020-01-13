@@ -107,6 +107,7 @@ class Carousel extends React.Component<CarouselProps, CarouselInternalState> {
     this.initialY = 0;
     this.isInThrottle = false;
     this.transformPlaceHolder = 0;
+    this.cancellationToken = useCancellationToken();
   }
   // we only use this when infinite mode is off
   public resetTotalItems(): void {
@@ -275,6 +276,9 @@ class Carousel extends React.Component<CarouselProps, CarouselInternalState> {
     });
   }
   public onResize(value?: React.KeyboardEvent | boolean): void {
+    if (this.cancellationToken.isCancelled) {
+      return
+    }
     // value here can be html event or a boolean.
     // if its in infinite mode, we want to keep the current slide index no matter what.
     // if its not infinite mode, keeping the current slide index has already been taken care of
@@ -456,7 +460,8 @@ class Carousel extends React.Component<CarouselProps, CarouselInternalState> {
     if (this.props.autoPlay && this.autoPlay) {
       clearInterval(this.autoPlay);
       this.autoPlay = undefined;
-    }
+    },
+    this.cancellationToken.cancel();
   }
   public resetMoveStatus(): void {
     this.onMove = false;
