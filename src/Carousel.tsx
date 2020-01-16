@@ -27,6 +27,7 @@ import Dots from "./Dots";
 import { LeftArrow, RightArrow } from "./Arrows";
 import CarouselItems from "./CarouselItems";
 import { getTransform } from "./utils/common";
+import { useCancellationToken } from "./utils/useCancellationToken";
 
 const defaultTransitionDuration = 400;
 const defaultTransition = "transform 400ms ease-in-out";
@@ -63,6 +64,7 @@ class Carousel extends React.Component<CarouselProps, CarouselInternalState> {
   public isInThrottle?: boolean;
   public initialY: number;
   private transformPlaceHolder: number;
+  public cancellationToken: any;
   constructor(props: CarouselProps) {
     super(props);
     this.containerRef = React.createRef();
@@ -460,7 +462,7 @@ class Carousel extends React.Component<CarouselProps, CarouselInternalState> {
     if (this.props.autoPlay && this.autoPlay) {
       clearInterval(this.autoPlay);
       this.autoPlay = undefined;
-    },
+    }
     this.cancellationToken.cancel();
   }
   public resetMoveStatus(): void {

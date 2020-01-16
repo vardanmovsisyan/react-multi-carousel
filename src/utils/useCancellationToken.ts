@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import * as React from "react";
 
 interface CancellationToken {
     isCancelled: boolean
@@ -6,7 +6,7 @@ interface CancellationToken {
 }
 
 export function useCancellationToken(): CancellationToken {
-    return useMemo(() => {
+    return React.useMemo(() => {
         const token = {
             isCancelled: false,
             cancel: () => {}
