@@ -24,7 +24,7 @@ import throwError from "./throwError";
 import { populateNextSlides } from "./next";
 import { populatePreviousSlides } from "./previous";
 import { populateSlidesOnMouseTouchMove } from "./mouseOrTouchMove";
-import { useCancellationToken } from './useCancellationToken';
+import useCancellationToken from "./useCancellationToken";
 
 export {
   isInLeftEnd,
@@ -46,5 +46,6 @@ export {
   populatePreviousSlides,
   populateSlidesOnMouseTouchMove,
   notEnoughChildren,
-  getInitialSlideInInfiniteMode
+  getInitialSlideInInfiniteMode,
+  useCancellationToken  
 };

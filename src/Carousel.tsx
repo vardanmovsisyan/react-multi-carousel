@@ -13,7 +13,8 @@ import {
   isInLeftEnd,
   isInRightEnd,
   getInitialSlideInInfiniteMode,
-  notEnoughChildren
+  notEnoughChildren,
+  useCancellationToken
 } from "./utils";
 import {
   CarouselInternalState,
@@ -27,7 +28,6 @@ import Dots from "./Dots";
 import { LeftArrow, RightArrow } from "./Arrows";
 import CarouselItems from "./CarouselItems";
 import { getTransform } from "./utils/common";
-import { useCancellationToken } from "./utils/useCancellationToken";
 
 const defaultTransitionDuration = 400;
 const defaultTransition = "transform 400ms ease-in-out";
@@ -65,6 +65,7 @@ class Carousel extends React.Component<CarouselProps, CarouselInternalState> {
   public initialY: number;
   private transformPlaceHolder: number;
   public cancellationToken: any;
+  public correctItemPosition: any;
   constructor(props: CarouselProps) {
     super(props);
     this.containerRef = React.createRef();
@@ -110,6 +111,7 @@ class Carousel extends React.Component<CarouselProps, CarouselInternalState> {
     this.isInThrottle = false;
     this.transformPlaceHolder = 0;
     this.cancellationToken = useCancellationToken();
+    this.correctItemPosition = null;
   }
   // we only use this when infinite mode is off
   public resetTotalItems(): void {
@@ -152,6 +154,9 @@ class Carousel extends React.Component<CarouselProps, CarouselInternalState> {
     }
   }
   public componentDidMount(): void {
+    if (this.cancellationToken.isCancelled) {
+      return;
+    }
     this.setState({ domLoaded: true });
     this.setItemsToShow();
     window.addEventListener("resize", this.onResize as React.EventHandler<any>);
@@ -279,7 +284,7 @@ class Carousel extends React.Component<CarouselProps, CarouselInternalState> {
   }
   public onResize(value?: React.KeyboardEvent | boolean): void {
     if (this.cancellationToken.isCancelled) {
-      return
+      return;
     }
     // value here can be html event or a boolean.
     // if its in infinite mode, we want to keep the current slide index no matter what.
@@ -307,7 +312,10 @@ class Carousel extends React.Component<CarouselProps, CarouselInternalState> {
       this.containerRef.current.offsetWidth !== containerWidth
     ) {
       // this is for handling resizing only.
-      setTimeout(() => {
+      this.correctItemPosition = setTimeout(() => {
+        if (this.cancellationToken.isCancelled) {
+          return;
+        }
         this.setItemsToShow(true);
       }, this.props.transitionDuration || defaultTransitionDuration);
     }
@@ -462,6 +470,9 @@ class Carousel extends React.Component<CarouselProps, CarouselInternalState> {
     if (this.props.autoPlay && this.autoPlay) {
       clearInterval(this.autoPlay);
       this.autoPlay = undefined;
+    }
+    if(this.correctItemPosition){
+      clearTimeout(this.correctItemPosition);
     }
     this.cancellationToken.cancel();
   }
